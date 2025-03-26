@@ -1,7 +1,10 @@
 
 import { Request, Response } from "express";
+import { PrismaClient } from "@prisma/client"
 
-interface Post{
+const prisma = new PrismaClient();
+
+interface Post {
   title: string,
   content: string,
   safeness: string
@@ -10,13 +13,17 @@ interface Post{
 export default class PostsController {
   async create(req: Request, res: Response) {
     try {
-      const post = <Post>req.body;
-
-      const title = post.title;
-      const content = post.content;
-      const safeness = post.safeness
+      const newPost = <Post>req.body;
+      const post = await prisma.post.create({
+        data: {
+          title: newPost.title,
+          content: newPost.content,
+          safeness: newPost.safeness
+        }
+      })
+      console.log(post)
       res.status(201).json({
-        message: "create OK", title, content, safeness
+        message: "create OK"
       });
     } catch (err) {
       res.status(500).json({
@@ -27,8 +34,9 @@ export default class PostsController {
 
   async findAll(req: Request, res: Response) {
     try {
+      const posts = await prisma.post.findMany({})
       res.status(200).json({
-        message: "findAll OK"
+        posts
       });
     } catch (err) {
       res.status(500).json({
@@ -37,18 +45,18 @@ export default class PostsController {
     }
   }
 
-  async findOne(req: Request, res: Response) {
-    try {
-      res.status(200).json({
-        message: "findOne OK",
-        reqParamId: req.params.id
-      });
-    } catch (err) {
-      res.status(500).json({
-        message: "Internal Server Error!"
-      });
-    }
-  }
+  // async findOne(req: Request, res: Response) {
+  //   try {
+  //     res.status(200).json({
+  //       message: "findOne OK",
+  //       reqParamId: req.params.id
+  //     });
+  //   } catch (err) {
+  //     res.status(500).json({
+  //       message: "Internal Server Error!"
+  //     });
+  //   }
+  // }
 
   async update(req: Request, res: Response) {
     try {
@@ -66,8 +74,16 @@ export default class PostsController {
 
   async delete(req: Request, res: Response) {
     try {
+      let deletePost;
+      const postID = parseInt(req.params.id)
+      const post = await prisma.post.findUnique({ where: { id: postID } })
+
+      console.log(post)
+      if (post) {
+        deletePost = await prisma.post.delete({ where: { id: postID } })
+      }
       res.status(200).json({
-        message: "delete OK",
+        message: deletePost,
         reqParamId: req.params.id
       });
     } catch (err) {

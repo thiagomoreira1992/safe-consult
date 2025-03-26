@@ -17,7 +17,7 @@ class PostsRoutes{
     this.router.get("/", this.controller.findAll);
 
     // Retrieve a single Tutorial with id
-    this.router.get("/:id", this.controller.findOne);
+    //this.router.get("/:id", this.controller.findOne);
 
     // Update a Tutorial with id
     this.router.put("/:id", this.controller.update);
