@@ -60,6 +60,23 @@ export default class PostsController {
 
   async update(req: Request, res: Response) {
     try {
+      let updatePost;
+
+      const postID = parseInt(req.params.id)
+      const newPost = <Post>req.body;
+
+      if (postID) {
+        updatePost = await prisma.post.update({
+          where:{
+            id: postID
+          },
+          data:{
+            title: newPost.title,
+            content: newPost.content,
+            safeness: newPost.safeness
+          }
+        })
+      }
       res.status(200).json({
         message: "update OK",
         reqParamId: req.params.id,
